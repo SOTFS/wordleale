@@ -1,27 +1,56 @@
 let intentos = 5;
-let diccionario = ['ARBOL', 'ACTOR', 'VALOR', 'VICIO','BARCO','PILAR',''];
-const palabra = diccionario[Math.floor(Math.random() * diccionario.length)];
+
+const API = "https://random-word-api.herokuapp.com/word?length=5&lang=es";
+let respuesta ;
+let palabra;
+
 const button = document.getElementById("guess-button");
 const input = document.getElementById("guess-input");
 const valor = input.value;
 const GRID = document.getElementById("grid");
 const ROW = document.createElement('div');
+const TITULO = document.getElementById("intento");
 ROW.className = 'row';
 
+
+window.addEventListener('load', iniciar());
+function iniciar() {
+
+    fetch(API).then((response) => {
+
+
+        response.json().then((body) => {
+            respuesta = body[0].toUpperCase();
+        });
+
+    }).catch((error) => {
+        console.log(error);
+    });
+    
+}
+
+
 function intentar(){
+    palabra = respuesta;
+    console.log(palabra);
     const INTENTO = leerIntento();
     const GRID = document.getElementById("grid");
     const ROW = document.createElement('div');
+    
+    
     ROW.className = 'row';
-    if (intentos!=0) {
+    console.log(intentos);
+    
+        
+        
         console.log(intentos);
-        intentos -= 1;
+        
         for (let i in palabra){
             const SPAN = document.createElement('span');
             SPAN.className = 'letter';
             if (INTENTO===palabra) {
 
-                terminar("<H1>GANASTE!</H1>");
+                terminar("<H1>Adivinaste!</H1>");
                 
             }
             if (INTENTO[i]===palabra[i]){ //VERDE
@@ -35,27 +64,22 @@ function intentar(){
                 SPAN.innerHTML = INTENTO[i];
                 SPAN.style.backgroundColor = 'grey';
             }
+
             ROW.appendChild(SPAN);
         }
         GRID.appendChild(ROW);
         
-        
-    }
+        intentos -= 1;
+        TITULO.innerHTML = "Intento: "+intentos;
+        if (intentos == 0) {
+            terminar("<h1 style='color: WHITE'>PERDISTE. La palabra correcta es:"+palabra+"</h1>");
+        }
     
-    else if (intentos==0) {
-        
     
-
-        terminar("<H1>PERDISTE!</H1>");
-
-
-    }
    
-
+    
 }
 
-
-//probar si la funcion se define antes del event liStener//
 button.addEventListener("click", intentar);
 
 function leerIntento(){
@@ -72,6 +96,7 @@ function terminar(mensaje){
     const INPUT = document.getElementById("guess-input");
     INPUT.disabled = true;
     button.disabled = true;
-    let contenedor = document.getElementById('guesses');
+    let contenedor = document.getElementById("guesses");
     contenedor.innerHTML = mensaje;
 }
+
